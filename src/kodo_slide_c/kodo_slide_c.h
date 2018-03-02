@@ -40,11 +40,11 @@
 
 // /// Opaque pointer used for the encoder and decoder factories
 // typedef struct kodo_slide_encoder_factory* kodo_slide_encoder_factory_t;
-// typedef struct kodo_slide_decoder_factory* kodo_slide_decoder_factory_t;
+typedef struct kodo_slide_decoder_factory* kodo_slide_decoder_factory_t;
 
 // /// Opaque pointer used for decoders, encoders
 // typedef struct kodo_slide_encoder* kodo_slide_encoder_t;
-// typedef struct kodo_slide_decoder* kodo_slide_decoder_t;
+typedef struct kodo_slide_decoder* kodo_slide_decoder_t;
 
 // /// Enum specifying the available finite fields
 // /// Note: the size of the enum type cannot be guaranteed, so the int32_t type
