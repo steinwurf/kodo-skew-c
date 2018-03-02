@@ -10,9 +10,9 @@ if not bld.is_mkspec_platform('windows'):
 # First, we test with the kodo-c static library (to make debugging easier)
 bld.program(
     features='cxx test',
-    source=['kodo_rlnc_c_tests.cpp'] + bld.path.ant_glob('src/*.cpp'),
-    target='kodo_rlnc_c_static_tests',
-    use=['kodo_rlnc_c_static', 'gtest'])
+    source=['kodo_slide_c_tests.cpp'] + bld.path.ant_glob('src/*.cpp'),
+    target='kodo_slide_c_static_tests',
+    use=['kodo_slide_c_static', 'gtest'])
 
 # Second, We test with the kodo-c shared library (which won't work on
 # Android and iOS)
@@ -20,7 +20,7 @@ if bld.get_mkspec_platform() not in ['android', 'ios']:
 
     bld.program(
         features='cxx test',
-        source=['kodo_rlnc_c_tests.cpp'] + bld.path.ant_glob('src/*.cpp'),
-        target='kodo_rlnc_c_tests',
+        source=['kodo_slide_c_tests.cpp'] + bld.path.ant_glob('src/*.cpp'),
+        target='kodo_slide_c_tests',
         rpath=search_path,
-        use=['kodo_rlnc_c', 'gtest'])
+        use=['kodo_slide_c', 'gtest'])

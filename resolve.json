@@ -9,13 +9,13 @@
         ]
     },
     {
-        "name": "kodo-rlnc",
+        "name": "kodo-slide",
         "optional": true,
         "resolver": "git",
-        "method": "semver",
-        "major": 9,
+        "method": "checkout",
+        "checkout": "master",
         "sources": [
-            "github.com/steinwurf/kodo-rlnc.git"
+            "github.com/steinwurf/kodo-slide.git"
         ]
     },
     {

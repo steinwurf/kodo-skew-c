@@ -29,7 +29,7 @@ project_dependencies = \
         'fifi',
         'gauge',
         'kodo-core',
-        'kodo-rlnc'
+        'kodo-slide'
     ]
 
 
