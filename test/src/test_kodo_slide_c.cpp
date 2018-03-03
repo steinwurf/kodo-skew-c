@@ -179,7 +179,8 @@ TEST(test_kodo_slide_c, api)
 
     EXPECT_TRUE(iterations != max_iterations);
 
-    EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data, symbols*symbol_size), 0U);
+    EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data, 
+        symbols*symbol_size), 0U);
 
     // std::vector<uint8_t> data_in(kodo_slide_encoder_block_size(encoder));
     // std::generate(data_in.begin(), data_in.end(), rand);
