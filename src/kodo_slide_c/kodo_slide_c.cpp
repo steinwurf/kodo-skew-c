@@ -13,24 +13,25 @@
 #include <kodo_slide/details/stack_encoder.hpp>
 #include <kodo_slide/details/stack_decoder.hpp>
 
-struct kodo_slide_decoder
+struct kslide_decoder
 {
-    kodo_slide::details::stack_decoder m_decoder;
+    kodo_slide::details::stack_decoder m_impl;
 };
 
-struct kodo_slide_decoder_factory
+struct kslide_decoder_factory
 {
-    template<class... Args>
-    kodo_slide_decoder_factory(Args&&... args) :
-        m_decoder_factory(std::forward<Args>(args)...)
-    { }
-    kodo_slide::details::stack_decoder::config m_decoder_factory;
+    kodo_slide::details::stack_decoder::config m_impl;
 };
 
-// struct kodo_slide_encoder
-// {
-//     kodo_slide_c::on_the_fly_encoder_stack m_encoder;
-// };
+struct kslide_encoder
+{
+    kodo_slide::details::stack_encoder m_impl;
+};
+
+struct kslide_encoder_factory
+{
+    kodo_slide::details::stack_encoder::config m_impl;
+};
 
 // struct kodo_slide_encoder_factory
 // {
@@ -62,126 +63,87 @@ struct kodo_slide_decoder_factory
 // // ENCODER FACTORY API
 // //------------------------------------------------------------------
 
-// kodo_slide_encoder_factory_t kodo_slide_encoder_factory_construct(
-//     int32_t finite_field_id, uint32_t symbols, uint32_t symbol_size)
-// {
-//     auto finite_field = build_finite_field(finite_field_id);
-//     return new kodo_slide_encoder_factory(finite_field, symbols, symbol_size);
-// }
+kslide_encoder_factory_t* kslide_new_encoder_factory()
+{
+    return new kslide_encoder_factory;
+}
 
-// void kodo_slide_encoder_factory_destruct(kodo_slide_encoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     delete api;
-// }
+void kslide_delete_encoder_factory(kslide_encoder_factory_t* factory)
+{
+    assert(factory != nullptr);
+    delete factory;
+}
 
-// uint32_t kodo_slide_encoder_factory_symbols(kodo_slide_encoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     return api->m_encoder_factory.symbols();
-// }
+uint32_t kslide_encoder_factory_symbol_size(kslide_encoder_factory_t* factory)
+{
+    assert(factory != nullptr);
+    return factory->m_impl.symbol_size();
+}
 
-// uint32_t kodo_slide_encoder_factory_symbol_size(kodo_slide_encoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     return api->m_encoder_factory.symbol_size();
-// }
+void kslide_encoder_factory_set_symbol_size(kslide_encoder_factory_t* factory,
+                                            uint32_t symbol_size)
+{
+    assert(factory != nullptr);
+    factory->m_impl.set_symbol_size(symbol_size);
+}
 
-// void kodo_slide_encoder_factory_set_symbols(kodo_slide_encoder_factory_t factory, uint32_t symbols)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     api->m_encoder_factory.set_symbols(symbols);
-// }
+kslide_encoder_t* kslide_encoder_factory_build(kslide_encoder_factory_t* factory)
+{
+    assert(factory != nullptr);
 
-// void kodo_slide_encoder_factory_set_symbol_size(
-//     kodo_slide_encoder_factory_t factory, uint32_t symbol_size)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     api->m_encoder_factory.set_symbol_size(symbol_size);
-// }
+    kslide_encoder_t* encoder = new kslide_encoder_t;
+    encoder->m_impl.initialize(factory->m_impl);
+    return encoder;
+}
 
-// kodo_slide_encoder_t kodo_slide_encoder_factory_build(kodo_slide_encoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_encoder_factory*) factory;
-//     auto encoder = new kodo_slide_encoder();
-//     encoder->m_encoder.initialize(api->m_encoder_factory);
-//     return encoder;
-// }
-
-// void kodo_slide_encoder_destruct(kodo_slide_encoder_t encoder)
-// {
-//     auto api = (kodo_slide_encoder*) encoder;
-//     delete api;
-// }
+void kslide_delete_encoder(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    delete encoder;
+}
 
 // //------------------------------------------------------------------
 // // DECODER FACTORY API
 // //------------------------------------------------------------------
 
-kodo_slide_decoder_factory_t kodo_slide_decoder_factory_construct()
+kslide_decoder_factory_t* kslide_new_decoder_factory()
 {
-    return new kodo_slide_decoder_factory();
+    return new kslide_decoder_factory;
 }
 
-void kodo_slide_decoder_factory_destruct(kodo_slide_decoder_factory_t factory)
+void kslide_delete_decoder_factory(kslide_decoder_factory_t* factory)
 {
+    assert(factory != nullptr);
     delete factory;
 }
 
-// uint32_t kodo_slide_decoder_factory_symbols(kodo_slide_decoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_decoder_factory*) factory;
-//     return api->m_decoder_factory.symbols();
-// }
-
-// uint32_t kodo_slide_decoder_factory_symbol_size(kodo_slide_decoder_factory_t factory)
-// {
-//     auto api = (kodo_slide_decoder_factory*) factory;
-//     return api->m_decoder_factory.symbol_size();
-// }
-
-
-void kodo_slide_decoder_factory_set_symbol_size(
-    kodo_slide_decoder_factory_t factory, uint32_t symbol_size)
+uint32_t kslide_decoder_factory_symbol_size(kslide_decoder_factory_t* factory)
 {
     assert(factory != nullptr);
-    factory->m_decoder_factory.set_symbol_size(symbol_size);
+    return factory->m_impl.symbol_size();
 }
 
-kodo_slide_decoder_t kodo_slide_decoder_factory_build(
-    kodo_slide_decoder_factory_t factory)
+
+void kslide_decoder_factory_set_symbol_size(
+    kslide_decoder_factory_t* factory, uint32_t symbol_size)
+{
+    assert(factory != nullptr);
+    factory->m_impl.set_symbol_size(symbol_size);
+}
+
+kslide_decoder_t* kslide_decoder_factory_build(kslide_decoder_factory_t* factory)
 {
     assert(factory != nullptr);
 
-    auto decoder = new kodo_slide_decoder;
-    decoder->m_decoder.initialize(factory->m_decoder_factory);
+    kslide_decoder_t* decoder = new kslide_decoder_t;
+    decoder->m_impl.initialize(factory->m_impl);
     return decoder;
 }
 
-void kodo_slide_decoder_destruct(kodo_slide_decoder_t decoder)
+void kslide_delete_decoder(kslide_decoder_t* decoder)
 {
     assert(decoder != nullptr);
     delete decoder;
-}
-
-uint32_t kodo_slide_decoder_stream_symbols(kodo_slide_decoder_t decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_decoder.stream_range().symbols();
-}
-
-uint32_t kodo_slide_decoder_symbol_size(kodo_slide_decoder_t decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_decoder.symbol_size();
-}
-
-void kodo_slide_decoder_push_front_symbol(
-    kodo_slide_decoder_t decoder, uint8_t* data)
-{
-    assert(decoder != nullptr);
-    assert(data != nullptr);
-    decoder->m_decoder.push_front_symbol(data);
 }
 
 // //------------------------------------------------------------------
@@ -213,40 +175,116 @@ void kodo_slide_decoder_push_front_symbol(
 //     api->m_encoder.set_const_symbols(storage::storage(data, size));
 // }
 
-// //------------------------------------------------------------------
-// // DECODER API
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// DECODER API
+//------------------------------------------------------------------
+uint32_t kslide_decoder_symbol_size(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbol_size();
+}
 
-// uint8_t kodo_slide_decoder_is_complete(kodo_slide_decoder_t decoder)
-// {
-//     auto api = (kodo_slide_decoder*) decoder;
-//     return api->m_decoder.is_complete();
-// }
+uint32_t kslide_decoder_stream_symbols(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.stream_range().symbols();
+}
 
-// uint32_t kodo_slide_decoder_rank(kodo_slide_decoder_t decoder)
-// {
-//     auto api = (kodo_slide_decoder*) decoder;
-//     return api->m_decoder.rank();
-// }
+uint64_t kslide_decoder_push_front_symbol(
+    kslide_decoder_t* decoder, uint8_t* data)
+{
+    assert(decoder != nullptr);
+    assert(data != nullptr);
 
-// //------------------------------------------------------------------
-// // ENCODER API
-// //------------------------------------------------------------------
+    decoder->m_impl.push_front_symbol(data);
+}
 
-// uint8_t kodo_slide_is_systematic_on(kodo_slide_encoder_t encoder)
-// {
-//     auto api = (kodo_slide_encoder*) encoder;
-//     return api->m_encoder.is_systematic_on();
-// }
+uint32_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbols_decoded();
+}
 
-// void kodo_slide_set_systematic_on(kodo_slide_encoder_t encoder)
-// {
-//     auto api = (kodo_slide_encoder*) encoder;
-//     api->m_encoder.set_systematic_on();
-// }
+uint32_t kslide_decoder_stream_lower_bound(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.stream_range().lower_bound();
+}
 
-// void kodo_slide_encoder_set_systematic_off(kodo_slide_encoder_t encoder)
-// {
-//     auto api = (kodo_slide_encoder*) encoder;
-//     api->m_encoder.set_systematic_off();
-// }
+void kslide_decoder_set_window(kslide_decoder_t* decoder,
+    uint32_t lower_bound, uint32_t symbols)
+{
+    assert(decoder != nullptr);
+    decoder->m_impl.set_window(lower_bound, symbols);
+}
+
+void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol,
+    uint8_t* coefficients)
+{
+    assert(decoder != nullptr);
+    decoder->m_impl.read_symbol(symbol, coefficients);
+}
+
+//------------------------------------------------------------------
+// ENCODER API
+//------------------------------------------------------------------
+uint32_t kslide_encoder_symbol_size(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.symbol_size();
+}
+
+uint32_t kslide_encoder_stream_symbols(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.stream_range().symbols();
+}
+
+uint64_t kslide_encoder_push_front_symbol(
+    kslide_encoder_t* encoder, uint8_t* data)
+{
+    assert(encoder != nullptr);
+    assert(data != nullptr);
+
+    encoder->m_impl.push_front_symbol(data);
+}
+
+uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.stream_range().lower_bound();
+}
+
+uint32_t kslide_encoder_coefficients_vector_size(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.window_size();
+}
+
+void kslide_encoder_set_window(kslide_encoder_t* encoder,
+    uint32_t lower_bound, uint32_t symbols)
+{
+    assert(encoder != nullptr);
+    encoder->m_impl.set_window(lower_bound, symbols);
+}
+
+void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint32_t seed)
+{
+    assert(encoder != nullptr);
+    encoder->m_impl.set_seed(seed);
+}
+
+
+void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* data)
+{
+    assert(encoder != nullptr);
+    assert(data != nullptr);
+
+    encoder->m_impl.generate(data);
+}
+
+void kslide_encoder_write_symbol(kslide_encoder_t* encoder, uint8_t* symbol,
+    const uint8_t* coefficients)
+{
+    encoder->m_impl.write_symbol(symbol, coefficients);
+}

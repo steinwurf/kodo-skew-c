@@ -46,63 +46,173 @@
 //     kodo_slide_encoder_factory_destruct(encoder_factory);
 // }
 
-// TEST(test_kodo_slide_c, api)
-// {
-//     uint32_t symbols = 50;
-//     uint32_t symbol_size = 750;
-//     auto decoder_factory = kodo_slide_decoder_factory_construct(
-//         kodo_slide_binary8, symbols, symbol_size);
+typedef struct
+{
+    uint32_t m_symbol_size;
+    uint32_t m_symbols;
+    uint8_t* m_data;
+}  symbol_storage;
 
-//     auto encoder_factory = kodo_slide_encoder_factory_construct(
-//         kodo_slide_binary8, symbols, symbol_size);
+symbol_storage* alloc_storage(uint32_t symbol_size, uint32_t symbols)
+{
+    assert(symbol_size > 0);
+    assert(symbols > 0);
 
-//     auto decoder = kodo_slide_decoder_factory_build(decoder_factory);
-//     auto encoder = kodo_slide_encoder_factory_build(encoder_factory);
+    symbol_storage* storage = (symbol_storage*) malloc(sizeof(symbol_storage));
+    storage->m_symbol_size = symbol_size;
+    storage->m_symbols = symbols;
+    storage->m_data = (uint8_t*) malloc(symbol_size*symbols);
+    memset(storage->m_data, 0, symbol_size*symbols);
 
-//     EXPECT_EQ(
-//         kodo_slide_decoder_block_size(decoder),
-//         kodo_slide_encoder_block_size(encoder));
+    return storage;
+}
 
-//     EXPECT_EQ(symbol_size, kodo_slide_decoder_symbol_size(decoder));
-//     EXPECT_EQ(symbols, kodo_slide_decoder_symbols(decoder));
+void free_storage(symbol_storage* storage)
+{
+    assert(storage != 0);
 
-//     EXPECT_EQ(symbol_size, kodo_slide_encoder_symbol_size(encoder));
-//     EXPECT_EQ(symbols, kodo_slide_encoder_symbols(encoder));
+    free(storage->m_data);
+    free(storage);
+}
 
-//     std::vector<uint8_t> data_in(kodo_slide_encoder_block_size(encoder));
-//     std::generate(data_in.begin(), data_in.end(), rand);
-//     kodo_slide_encoder_set_const_symbols(
-//         encoder, data_in.data(), data_in.size());
+void randomize_storage(symbol_storage* storage)
+{
+    assert(storage != 0);
 
-//     std::vector<uint8_t> data_out(kodo_slide_decoder_block_size(decoder));
-//     kodo_slide_decoder_set_mutable_symbols(
-//         decoder, data_out.data(), data_out.size());
+    uint32_t size = storage->m_symbol_size * storage->m_symbols;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        storage->m_data[i] = rand();
+    }
+}
 
-//     EXPECT_EQ(
-//         kodo_slide_decoder_payload_size(decoder),
-//         kodo_slide_encoder_payload_size(encoder));
+uint8_t* storage_symbol(symbol_storage* storage, uint32_t index)
+{
+    assert(storage != 0);
+    assert(index < storage->m_symbols);
 
-//     std::vector<uint8_t> payload(kodo_slide_encoder_payload_size(encoder));
+    return storage->m_data + (index * storage->m_symbol_size);
+}
 
-//     EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
-//     kodo_slide_encoder_set_systematic_off(encoder);
-//     EXPECT_FALSE(kodo_slide_is_systematic_on(encoder));
-//     kodo_slide_set_systematic_on(encoder);
-//     EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
-//     kodo_slide_encoder_set_systematic_off(encoder);
+TEST(test_kodo_slide_c, api)
+{
+    uint32_t symbols = 100U;
+    uint32_t symbol_size = 750U;
 
-//     EXPECT_EQ(0U, kodo_slide_decoder_rank(decoder));
-//     while(!kodo_slide_decoder_is_complete(decoder))
-//     {
-//         kodo_slide_encoder_write_payload(encoder, payload.data());
-//         kodo_slide_decoder_read_payload(decoder, payload.data());
-//     }
-//     EXPECT_EQ(symbols, kodo_slide_decoder_rank(decoder));
+    kslide_decoder_factory_t* decoder_factory = kslide_new_decoder_factory();
+    kslide_encoder_factory_t* encoder_factory = kslide_new_encoder_factory();
 
-//     EXPECT_EQ(data_in, data_out);
+    kslide_decoder_factory_set_symbol_size(decoder_factory, symbol_size);
+    kslide_encoder_factory_set_symbol_size(encoder_factory, symbol_size);
 
-//     kodo_slide_decoder_destruct(decoder);
-//     kodo_slide_encoder_destruct(encoder);
-//     kodo_slide_decoder_factory_destruct(decoder_factory);
-//     kodo_slide_encoder_factory_destruct(encoder_factory);
-// }
+    EXPECT_EQ(
+        kslide_decoder_factory_symbol_size(decoder_factory),
+        kslide_encoder_factory_symbol_size(encoder_factory));
+
+    kslide_decoder_t* decoder = kslide_decoder_factory_build(decoder_factory);
+    kslide_encoder_t* encoder = kslide_encoder_factory_build(encoder_factory);
+
+    EXPECT_EQ(symbol_size, kslide_decoder_symbol_size(decoder));
+    EXPECT_EQ(symbol_size, kslide_encoder_symbol_size(encoder));
+
+    // Allocate memory for the decoder
+    symbol_storage* decoder_storage = alloc_storage(symbol_size, symbols);
+    symbol_storage* encoder_storage = alloc_storage(symbol_size, symbols);
+
+    // Fill the encoder storage with random data
+    randomize_storage(encoder_storage);
+
+    // Provide the decoder with storage
+    for(uint32_t i = 0; i < symbols; ++i)
+    {
+        uint8_t* symbol = storage_symbol(decoder_storage, i);
+        kslide_decoder_push_front_symbol(decoder, symbol);
+    }
+
+    uint32_t iterations = 0U;
+    uint32_t max_iterations = 1000U;
+    uint32_t symbols_decoded = 0;
+
+    while(symbols_decoded < symbols && iterations < max_iterations)
+    {
+        if (kslide_encoder_stream_symbols(encoder) < symbols && rand() % 2)
+        {
+            uint8_t* symbol = storage_symbol(
+                encoder_storage, kslide_encoder_stream_symbols(encoder));
+
+            kslide_encoder_push_front_symbol(encoder, symbol);
+        }
+
+        if (kslide_encoder_stream_symbols(encoder) == 0)
+        {
+            continue;
+        }
+
+        kslide_encoder_set_window(encoder,
+            kslide_encoder_stream_lower_bound(encoder),
+            kslide_encoder_stream_symbols(encoder));
+
+        kslide_decoder_set_window(decoder,
+            kslide_encoder_stream_lower_bound(encoder),
+            kslide_encoder_stream_symbols(encoder));
+
+        uint8_t* coefficients = (uint8_t*) malloc(
+            kslide_encoder_coefficients_vector_size(encoder));
+
+        uint8_t* symbol = (uint8_t*) malloc(
+            kslide_encoder_symbol_size(encoder));
+
+        uint32_t seed = rand();
+
+        kslide_encoder_set_seed(encoder, seed);
+        kslide_encoder_generate(encoder, coefficients);
+
+        kslide_encoder_write_symbol(encoder, symbol, coefficients);
+        kslide_decoder_read_symbol(decoder, symbol, coefficients);
+
+        free(coefficients);
+        free(symbol);
+
+        symbols_decoded = kslide_decoder_symbols_decoded(decoder);
+        ++iterations;
+    }
+
+    EXPECT_TRUE(iterations != max_iterations);
+
+    // std::vector<uint8_t> data_in(kodo_slide_encoder_block_size(encoder));
+    // std::generate(data_in.begin(), data_in.end(), rand);
+    // kodo_slide_encoder_set_const_symbols(
+    //     encoder, data_in.data(), data_in.size());
+
+    // std::vector<uint8_t> data_out(kodo_slide_decoder_block_size(decoder));
+    // kodo_slide_decoder_set_mutable_symbols(
+    //     decoder, data_out.data(), data_out.size());
+
+    // EXPECT_EQ(
+    //     kodo_slide_decoder_payload_size(decoder),
+    //     kodo_slide_encoder_payload_size(encoder));
+
+    // std::vector<uint8_t> payload(kodo_slide_encoder_payload_size(encoder));
+
+    // EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
+    // kodo_slide_encoder_set_systematic_off(encoder);
+    // EXPECT_FALSE(kodo_slide_is_systematic_on(encoder));
+    // kodo_slide_set_systematic_on(encoder);
+    // EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
+    // kodo_slide_encoder_set_systematic_off(encoder);
+
+    // EXPECT_EQ(0U, kodo_slide_decoder_rank(decoder));
+    // while(!kodo_slide_decoder_is_complete(decoder))
+    // {
+    //     kodo_slide_encoder_write_payload(encoder, payload.data());
+    //     kodo_slide_decoder_read_payload(decoder, payload.data());
+    // }
+    // EXPECT_EQ(symbols, kodo_slide_decoder_rank(decoder));
+
+    // EXPECT_EQ(data_in, data_out);
+
+    kslide_delete_decoder(decoder);
+    kslide_delete_encoder(encoder);
+    kslide_delete_decoder_factory(decoder_factory);
+    kslide_delete_encoder_factory(encoder_factory);
+}
