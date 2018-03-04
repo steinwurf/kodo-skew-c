@@ -12,8 +12,8 @@
         "name": "kodo-slide",
         "optional": true,
         "resolver": "git",
-        "method": "checkout",
-        "checkout": "master",
+        "method": "semver",
+        "major": 1,
         "sources": [
             "github.com/steinwurf/kodo-slide.git"
         ]
