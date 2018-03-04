@@ -8,10 +8,10 @@
 #include <stdint.h>
 
 #if defined(_MSC_VER)
-    #if defined(KODO_SLIDE_STATIC)
+    #if defined(KODO_SLIDE_C_STATIC)
         // When building a static library, KODO_SLIDE_API should be blank
         #define KODO_SLIDE_API
-    #elif defined(KODO_SLIDE_DLL_EXPORTS)
+    #elif defined(KODO_SLIDE_C_DLL_EXPORTS)
         // When building the DLL, the API symbols must be exported
         #define KODO_SLIDE_API __declspec(dllexport)
     #else
