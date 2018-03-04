@@ -6,7 +6,7 @@ import sys
 import json
 import subprocess
 
-project_name = 'kodo-skew-c'
+project_name = 'kodo-slide-c'
 
 
 def run_command(args):
@@ -108,5 +108,4 @@ def main():
 
 
 if __name__ == '__main__':
-    #main()
-    print("enable buildbot.py")
+    main()

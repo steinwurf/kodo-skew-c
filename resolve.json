@@ -1,0 +1,31 @@
+[
+    {
+        "name": "waf-tools",
+        "resolver": "git",
+        "method": "semver",
+        "major": 4,
+        "sources": [
+            "github.com/steinwurf/waf-tools.git"
+        ]
+    },
+    {
+        "name": "kodo-slide",
+        "optional": true,
+        "resolver": "git",
+        "method": "checkout",
+        "checkout": "master",
+        "sources": [
+            "github.com/steinwurf/kodo-slide.git"
+        ]
+    },
+    {
+        "name": "gtest",
+        "internal": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 4,
+        "sources": [
+            "github.com/steinwurf/gtest.git"
+        ]
+    }
+]
