@@ -179,40 +179,9 @@ TEST(test_kodo_slide_c, api)
 
     EXPECT_TRUE(iterations != max_iterations);
 
-    EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data, 
+    EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data,
         symbols*symbol_size), 0U);
 
-    // std::vector<uint8_t> data_in(kodo_slide_encoder_block_size(encoder));
-    // std::generate(data_in.begin(), data_in.end(), rand);
-    // kodo_slide_encoder_set_const_symbols(
-    //     encoder, data_in.data(), data_in.size());
-
-    // std::vector<uint8_t> data_out(kodo_slide_decoder_block_size(decoder));
-    // kodo_slide_decoder_set_mutable_symbols(
-    //     decoder, data_out.data(), data_out.size());
-
-    // EXPECT_EQ(
-    //     kodo_slide_decoder_payload_size(decoder),
-    //     kodo_slide_encoder_payload_size(encoder));
-
-    // std::vector<uint8_t> payload(kodo_slide_encoder_payload_size(encoder));
-
-    // EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
-    // kodo_slide_encoder_set_systematic_off(encoder);
-    // EXPECT_FALSE(kodo_slide_is_systematic_on(encoder));
-    // kodo_slide_set_systematic_on(encoder);
-    // EXPECT_TRUE(kodo_slide_is_systematic_on(encoder));
-    // kodo_slide_encoder_set_systematic_off(encoder);
-
-    // EXPECT_EQ(0U, kodo_slide_decoder_rank(decoder));
-    // while(!kodo_slide_decoder_is_complete(decoder))
-    // {
-    //     kodo_slide_encoder_write_payload(encoder, payload.data());
-    //     kodo_slide_decoder_read_payload(decoder, payload.data());
-    // }
-    // EXPECT_EQ(symbols, kodo_slide_decoder_rank(decoder));
-
-    // EXPECT_EQ(data_in, data_out);
 
     kslide_delete_decoder(decoder);
     kslide_delete_encoder(encoder);
