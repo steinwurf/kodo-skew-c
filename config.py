@@ -9,7 +9,7 @@ try:
 except NameError:
     pass
 
-project_name = 'kodo-skew-c'
+project_name = 'kodo-slide-c'
 project_dependencies = \
     [
         'waf-tools',

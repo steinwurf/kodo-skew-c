@@ -185,6 +185,10 @@ TEST(test_kodo_slide_c, api)
 
     kslide_delete_decoder(decoder);
     kslide_delete_encoder(encoder);
+
+    free_storage(decoder_storage);
+    free_storage(encoder_storage);
+
     kslide_delete_decoder_factory(decoder_factory);
     kslide_delete_encoder_factory(encoder_factory);
 }

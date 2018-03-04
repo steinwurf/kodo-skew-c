@@ -1,4 +1,4 @@
-News for kodo-skew-c
+News for kodo-slide-c
 ====================
 
 This file lists the major changes between versions. For a more detailed list
