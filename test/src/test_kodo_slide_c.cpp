@@ -180,7 +180,7 @@ TEST(test_kodo_slide_c, api)
     EXPECT_TRUE(iterations != max_iterations);
 
     EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data,
-        symbols*symbol_size), 0U);
+        symbols*symbol_size), 0);
 
 
     kslide_delete_decoder(decoder);

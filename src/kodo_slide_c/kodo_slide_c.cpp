@@ -196,7 +196,7 @@ uint64_t kslide_decoder_push_front_symbol(
     assert(decoder != nullptr);
     assert(data != nullptr);
 
-    decoder->m_impl.push_front_symbol(data);
+    return decoder->m_impl.push_front_symbol(data);
 }
 
 uint32_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
@@ -246,7 +246,7 @@ uint64_t kslide_encoder_push_front_symbol(
     assert(encoder != nullptr);
     assert(data != nullptr);
 
-    encoder->m_impl.push_front_symbol(data);
+    return encoder->m_impl.push_front_symbol(data);
 }
 
 uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder)
