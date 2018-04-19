@@ -59,9 +59,9 @@ struct kslide_encoder_factory
 //     }
 // }
 
-// //------------------------------------------------------------------
-// // ENCODER FACTORY API
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// ENCODER FACTORY API
+//------------------------------------------------------------------
 
 kslide_encoder_factory_t* kslide_new_encoder_factory()
 {
@@ -80,14 +80,15 @@ uint32_t kslide_encoder_factory_symbol_size(kslide_encoder_factory_t* factory)
     return factory->m_impl.symbol_size();
 }
 
-void kslide_encoder_factory_set_symbol_size(kslide_encoder_factory_t* factory,
-                                            uint32_t symbol_size)
+void kslide_encoder_factory_set_symbol_size(
+    kslide_encoder_factory_t* factory, uint32_t symbol_size)
 {
     assert(factory != nullptr);
     factory->m_impl.set_symbol_size(symbol_size);
 }
 
-kslide_encoder_t* kslide_encoder_factory_build(kslide_encoder_factory_t* factory)
+kslide_encoder_t* kslide_encoder_factory_build(
+    kslide_encoder_factory_t* factory)
 {
     assert(factory != nullptr);
 
@@ -102,9 +103,9 @@ void kslide_delete_encoder(kslide_encoder_t* encoder)
     delete encoder;
 }
 
-// //------------------------------------------------------------------
-// // DECODER FACTORY API
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// DECODER FACTORY API
+//------------------------------------------------------------------
 
 kslide_decoder_factory_t* kslide_new_decoder_factory()
 {
@@ -131,7 +132,8 @@ void kslide_decoder_factory_set_symbol_size(
     factory->m_impl.set_symbol_size(symbol_size);
 }
 
-kslide_decoder_t* kslide_decoder_factory_build(kslide_decoder_factory_t* factory)
+kslide_decoder_t* kslide_decoder_factory_build(
+    kslide_decoder_factory_t* factory)
 {
     assert(factory != nullptr);
 
@@ -146,9 +148,9 @@ void kslide_delete_decoder(kslide_decoder_t* decoder)
     delete decoder;
 }
 
-// //------------------------------------------------------------------
-// // SYMBOL STORAGE API ENCODER
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// SYMBOL STORAGE API ENCODER
+//------------------------------------------------------------------
 
 // uint32_t kodo_slide_encoder_block_size(kodo_slide_encoder_t encoder)
 // {
@@ -187,7 +189,7 @@ uint32_t kslide_decoder_symbol_size(kslide_decoder_t* decoder)
 uint32_t kslide_decoder_stream_symbols(kslide_decoder_t* decoder)
 {
     assert(decoder != nullptr);
-    return decoder->m_impl.stream_range().symbols();
+    return decoder->m_impl.stream_range().symbols().get();
 }
 
 uint64_t kslide_decoder_push_front_symbol(
@@ -196,30 +198,30 @@ uint64_t kslide_decoder_push_front_symbol(
     assert(decoder != nullptr);
     assert(data != nullptr);
 
-    return decoder->m_impl.push_front_symbol(data);
+    return decoder->m_impl.push_front_symbol(data).get();
 }
 
 uint32_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
 {
     assert(decoder != nullptr);
-    return decoder->m_impl.symbols_decoded();
+    return decoder->m_impl.symbols_decoded().get();
 }
 
 uint32_t kslide_decoder_stream_lower_bound(kslide_decoder_t* decoder)
 {
     assert(decoder != nullptr);
-    return decoder->m_impl.stream_range().lower_bound();
+    return decoder->m_impl.stream_range().lower_bound().get();
 }
 
 void kslide_decoder_set_window(kslide_decoder_t* decoder,
-    uint32_t lower_bound, uint32_t symbols)
+                               uint32_t lower_bound, uint32_t symbols)
 {
     assert(decoder != nullptr);
     decoder->m_impl.set_window(lower_bound, symbols);
 }
 
 void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol,
-    uint8_t* coefficients)
+                                uint8_t* coefficients)
 {
     assert(decoder != nullptr);
     decoder->m_impl.read_symbol(symbol, coefficients);
@@ -237,7 +239,7 @@ uint32_t kslide_encoder_symbol_size(kslide_encoder_t* encoder)
 uint32_t kslide_encoder_stream_symbols(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
-    return encoder->m_impl.stream_range().symbols();
+    return encoder->m_impl.stream_range().symbols().get();
 }
 
 uint64_t kslide_encoder_push_front_symbol(
@@ -246,23 +248,23 @@ uint64_t kslide_encoder_push_front_symbol(
     assert(encoder != nullptr);
     assert(data != nullptr);
 
-    return encoder->m_impl.push_front_symbol(data);
+    return encoder->m_impl.push_front_symbol(data).get();
 }
 
 uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
-    return encoder->m_impl.stream_range().lower_bound();
+    return encoder->m_impl.stream_range().lower_bound().get();
 }
 
 uint32_t kslide_encoder_coefficients_vector_size(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
-    return encoder->m_impl.window_size();
+    return encoder->m_impl.window_size().get();
 }
 
 void kslide_encoder_set_window(kslide_encoder_t* encoder,
-    uint32_t lower_bound, uint32_t symbols)
+                               uint32_t lower_bound, uint32_t symbols)
 {
     assert(encoder != nullptr);
     encoder->m_impl.set_window(lower_bound, symbols);
@@ -274,7 +276,6 @@ void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint32_t seed)
     encoder->m_impl.set_seed(seed);
 }
 
-
 void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* data)
 {
     assert(encoder != nullptr);
@@ -284,7 +285,7 @@ void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* data)
 }
 
 void kslide_encoder_write_symbol(kslide_encoder_t* encoder, uint8_t* symbol,
-    const uint8_t* coefficients)
+                                 const uint8_t* coefficients)
 {
     encoder->m_impl.write_symbol(symbol, coefficients);
 }

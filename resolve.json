@@ -10,10 +10,9 @@
     },
     {
         "name": "kodo-slide",
-        "optional": true,
         "resolver": "git",
         "method": "semver",
-        "major": 1,
+        "major": 2,
         "sources": [
             "github.com/steinwurf/kodo-slide.git"
         ]

@@ -80,7 +80,7 @@ void randomize_storage(symbol_storage* storage)
     assert(storage != 0);
 
     uint32_t size = storage->m_symbol_size * storage->m_symbols;
-    for(uint32_t i = 0; i < size; ++i)
+    for (uint32_t i = 0; i < size; ++i)
     {
         storage->m_data[i] = rand();
     }
@@ -123,7 +123,7 @@ TEST(test_kodo_slide_c, api)
     randomize_storage(encoder_storage);
 
     // Provide the decoder with storage
-    for(uint32_t i = 0; i < symbols; ++i)
+    for (uint32_t i = 0; i < symbols; ++i)
     {
         uint8_t* symbol = storage_symbol(decoder_storage, i);
         kslide_decoder_push_front_symbol(decoder, symbol);
@@ -133,7 +133,7 @@ TEST(test_kodo_slide_c, api)
     uint32_t max_iterations = 1000U;
     uint32_t symbols_decoded = 0;
 
-    while(symbols_decoded < symbols && iterations < max_iterations)
+    while (symbols_decoded < symbols && iterations < max_iterations)
     {
         if (kslide_encoder_stream_symbols(encoder) < symbols && rand() % 2)
         {
@@ -149,12 +149,12 @@ TEST(test_kodo_slide_c, api)
         }
 
         kslide_encoder_set_window(encoder,
-            kslide_encoder_stream_lower_bound(encoder),
-            kslide_encoder_stream_symbols(encoder));
+                                  kslide_encoder_stream_lower_bound(encoder),
+                                  kslide_encoder_stream_symbols(encoder));
 
         kslide_decoder_set_window(decoder,
-            kslide_encoder_stream_lower_bound(encoder),
-            kslide_encoder_stream_symbols(encoder));
+                                  kslide_encoder_stream_lower_bound(encoder),
+                                  kslide_encoder_stream_symbols(encoder));
 
         uint8_t* coefficients = (uint8_t*) malloc(
             kslide_encoder_coefficients_vector_size(encoder));
@@ -180,7 +180,7 @@ TEST(test_kodo_slide_c, api)
     EXPECT_TRUE(iterations != max_iterations);
 
     EXPECT_EQ(memcmp(decoder_storage->m_data, encoder_storage->m_data,
-        symbols*symbol_size), 0);
+                     symbols*symbol_size), 0);
 
 
     kslide_delete_decoder(decoder);

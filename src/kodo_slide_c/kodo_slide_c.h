@@ -174,11 +174,11 @@ uint32_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder);
 /// @param symbols The number of symbols in the window
 KODO_SLIDE_API
 void kslide_decoder_set_window(kslide_decoder_t* decoder,
-    uint32_t lower_bound, uint32_t symbols);
+                               uint32_t lower_bound, uint32_t symbols);
 
 KODO_SLIDE_API
 void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol,
-    uint8_t* coefficients);
+                                uint8_t* coefficients);
 
 //------------------------------------------------------------------
 // ENCODER API
@@ -221,14 +221,14 @@ void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* data);
 
 KODO_SLIDE_API
 void kslide_encoder_write_symbol(kslide_encoder_t* encoder, uint8_t* symbol,
-    const uint8_t* coefficients);
+                                 const uint8_t* coefficients);
 
 /// @param encoder The encoder to query
 /// @param lower_bound The index of the "oldest" symbol in the window
 /// @param symbols The number of symbols in the window
 KODO_SLIDE_API
 void kslide_encoder_set_window(kslide_encoder_t* encoder,
-    uint32_t lower_bound, uint32_t symbols);
+                               uint32_t lower_bound, uint32_t symbols);
 
 #ifdef __cplusplus
 }
