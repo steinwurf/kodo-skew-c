@@ -233,3 +233,6 @@ void kslide_encoder_set_window(kslide_encoder_t* encoder,
 #ifdef __cplusplus
 }
 #endif
+
+// Clean up define
+#undef KODO_SLIDE_API
