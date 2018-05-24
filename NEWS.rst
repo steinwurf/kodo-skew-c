@@ -6,6 +6,10 @@ of every change, see the Git log.
 
 Latest
 ------
+* tbd
+
+2.0.0
+-----
 * Major: Correct spelling: ``kslide_encoder_coefficients_vector_size`` ->
   ``kslide_encoder_coefficient_vector_size``.
 * Minor: Exposed API for changing field.
