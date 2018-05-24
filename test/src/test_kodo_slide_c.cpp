@@ -10,41 +10,38 @@
 
 #include <gtest/gtest.h>
 
-// TEST(test_kodo_slide_c, factory_api)
-// {
-//     uint32_t symbols = 50;
-//     uint32_t symbol_size = 750;
-//     auto decoder_factory = kodo_slide_decoder_factory_construct(
-//         kodo_slide_binary8, symbols, symbol_size);
+TEST(test_kodo_slide_c, factory_api)
+{
+    uint32_t symbol_size = 1300;
+    int32_t field = kslide_binary8;
+    auto decoder_factory = kslide_new_decoder_factory();
+    auto encoder_factory = kslide_new_encoder_factory();
 
-//     auto encoder_factory = kodo_slide_encoder_factory_construct(
-//         kodo_slide_binary8, symbols, symbol_size);
+    EXPECT_EQ(field, kslide_decoder_factory_field(decoder_factory));
+    EXPECT_EQ(field, kslide_encoder_factory_field(encoder_factory));
 
-//     EXPECT_EQ(symbols, kodo_slide_decoder_factory_symbols(decoder_factory));
-//     EXPECT_EQ(symbols, kodo_slide_encoder_factory_symbols(encoder_factory));
+    for (auto new_field : { kslide_binary, kslide_binary4, kslide_binary8, kslide_binary16 })
+    {
+        kslide_decoder_factory_set_field(decoder_factory, new_field);
+        kslide_encoder_factory_set_field(encoder_factory, new_field);
+        EXPECT_EQ(new_field, kslide_decoder_factory_field(decoder_factory));
+        EXPECT_EQ(new_field, kslide_encoder_factory_field(encoder_factory));
+    }
 
-//     EXPECT_EQ(symbol_size, kodo_slide_encoder_factory_symbol_size(encoder_factory));
-//     EXPECT_EQ(symbol_size, kodo_slide_decoder_factory_symbol_size(decoder_factory));
+    EXPECT_EQ(symbol_size, kslide_encoder_factory_symbol_size(encoder_factory));
+    EXPECT_EQ(symbol_size, kslide_decoder_factory_symbol_size(decoder_factory));
 
-//     uint32_t new_symbols = 25;
+    uint32_t new_symbol_size = 300;
 
-//     kodo_slide_encoder_factory_set_symbols(encoder_factory, new_symbols);
-//     EXPECT_EQ(new_symbols, kodo_slide_encoder_factory_symbols(encoder_factory));
+    kslide_encoder_factory_set_symbol_size(encoder_factory, new_symbol_size);
+    EXPECT_EQ(new_symbol_size, kslide_encoder_factory_symbol_size(encoder_factory));
 
-//     kodo_slide_decoder_factory_set_symbols(decoder_factory, new_symbols);
-//     EXPECT_EQ(new_symbols, kodo_slide_decoder_factory_symbols(decoder_factory));
+    kslide_decoder_factory_set_symbol_size(decoder_factory, new_symbol_size);
+    EXPECT_EQ(new_symbol_size, kslide_decoder_factory_symbol_size(decoder_factory));
 
-//     uint32_t new_symbol_size = 300;
-
-//     kodo_slide_encoder_factory_set_symbol_size(encoder_factory, new_symbol_size);
-//     EXPECT_EQ(new_symbol_size, kodo_slide_encoder_factory_symbol_size(encoder_factory));
-
-//     kodo_slide_decoder_factory_set_symbol_size(decoder_factory, new_symbol_size);
-//     EXPECT_EQ(new_symbol_size, kodo_slide_decoder_factory_symbol_size(decoder_factory));
-
-//     kodo_slide_decoder_factory_destruct(decoder_factory);
-//     kodo_slide_encoder_factory_destruct(encoder_factory);
-// }
+    kslide_delete_decoder_factory(decoder_factory);
+    kslide_delete_encoder_factory(encoder_factory);
+}
 
 typedef struct
 {
@@ -157,7 +154,7 @@ TEST(test_kodo_slide_c, api)
                                   kslide_encoder_stream_symbols(encoder));
 
         uint8_t* coefficients = (uint8_t*) malloc(
-            kslide_encoder_coefficients_vector_size(encoder));
+            kslide_encoder_coefficient_vector_size(encoder));
 
         uint8_t* symbol = (uint8_t*) malloc(
             kslide_encoder_symbol_size(encoder));

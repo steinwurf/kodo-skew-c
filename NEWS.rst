@@ -6,7 +6,7 @@ of every change, see the Git log.
 
 Latest
 ------
-* tbd
+* Major: Switch from using kodo-slide's detail stacks to using the wrappers.
 * Major: Upgrade to kodo-slide 2
 
 1.0.0
