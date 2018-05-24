@@ -6,6 +6,7 @@ of every change, see the Git log.
 
 Latest
 ------
+* Minor: Exposed API for changing field.
 * Major: Switch from using kodo-slide's detail stacks to using the wrappers.
 * Major: Upgrade to kodo-slide 2
 
