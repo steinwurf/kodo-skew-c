@@ -39,7 +39,7 @@ struct kslide_encoder_factory
     kodo_slide::encoder::factory m_impl;
 };
 
-int32_t kodo_slide_field_to_c_field(kodo_slide::finite_field field_id)
+int32_t kslide_field_to_c_field(kodo_slide::finite_field field_id)
 {
     switch (field_id)
     {
@@ -57,7 +57,7 @@ int32_t kodo_slide_field_to_c_field(kodo_slide::finite_field field_id)
     }
 }
 
-kodo_slide::finite_field c_field_to_kodo_slide_field(int32_t c_field)
+kodo_slide::finite_field c_field_to_kslide_field(int32_t c_field)
 {
     switch (c_field)
     {
@@ -93,14 +93,14 @@ void kslide_delete_encoder_factory(kslide_encoder_factory_t* factory)
 int32_t kslide_encoder_factory_field(kslide_encoder_factory_t* factory)
 {
     assert(factory != nullptr);
-    return kodo_slide_field_to_c_field(factory->m_impl.field());
+    return kslide_field_to_c_field(factory->m_impl.field());
 }
 
 void kslide_encoder_factory_set_field(
     kslide_encoder_factory_t* factory, int32_t c_field)
 {
     assert(factory != nullptr);
-    factory->m_impl.set_field(c_field_to_kodo_slide_field(c_field));
+    factory->m_impl.set_field(c_field_to_kslide_field(c_field));
 }
 
 uint32_t kslide_encoder_factory_symbol_size(kslide_encoder_factory_t* factory)
@@ -147,14 +147,14 @@ void kslide_delete_decoder_factory(kslide_decoder_factory_t* factory)
 int32_t kslide_decoder_factory_field(kslide_decoder_factory_t* factory)
 {
     assert(factory != nullptr);
-    return kodo_slide_field_to_c_field(factory->m_impl.field());
+    return kslide_field_to_c_field(factory->m_impl.field());
 }
 
 void kslide_decoder_factory_set_field(
     kslide_decoder_factory_t* factory, int32_t c_field)
 {
     assert(factory != nullptr);
-    factory->m_impl.set_field(c_field_to_kodo_slide_field(c_field));
+    factory->m_impl.set_field(c_field_to_kslide_field(c_field));
 }
 
 uint32_t kslide_decoder_factory_symbol_size(kslide_decoder_factory_t* factory)
