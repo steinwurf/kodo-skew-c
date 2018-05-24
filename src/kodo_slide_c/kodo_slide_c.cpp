@@ -43,14 +43,14 @@ int32_t kodo_slide_field_to_c_field(kodo_slide::finite_field field_id)
 {
     switch (field_id)
     {
-        case kodo_slide::finite_field::binary:
-            return kslide_binary;
-        case kodo_slide::finite_field::binary4:
-            return kslide_binary4;
-        case kodo_slide::finite_field::binary8:
-            return kslide_binary8;
-        case kodo_slide::finite_field::binary16:
-            return kslide_binary16;
+    case kodo_slide::finite_field::binary:
+        return kslide_binary;
+    case kodo_slide::finite_field::binary4:
+        return kslide_binary4;
+    case kodo_slide::finite_field::binary8:
+        return kslide_binary8;
+    case kodo_slide::finite_field::binary16:
+        return kslide_binary16;
     default:
         assert(false && "Unknown field");
         return kslide_binary;
@@ -61,14 +61,14 @@ kodo_slide::finite_field c_field_to_kodo_slide_field(int32_t c_field)
 {
     switch (c_field)
     {
-        case kslide_binary:
-            return kodo_slide::finite_field::binary;
-        case kslide_binary4:
-            return kodo_slide::finite_field::binary4;
-        case kslide_binary8:
-            return kodo_slide::finite_field::binary8;
-        case kslide_binary16:
-            return kodo_slide::finite_field::binary16;
+    case kslide_binary:
+        return kodo_slide::finite_field::binary;
+    case kslide_binary4:
+        return kodo_slide::finite_field::binary4;
+    case kslide_binary8:
+        return kodo_slide::finite_field::binary8;
+    case kslide_binary16:
+        return kodo_slide::finite_field::binary16;
     default:
         assert(false && "Unknown field");
         return kodo_slide::finite_field::binary;
