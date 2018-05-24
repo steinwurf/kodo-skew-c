@@ -49,13 +49,14 @@ typedef struct kslide_decoder kslide_decoder_t;
 // /// Enum specifying the available finite fields
 // /// Note: the size of the enum type cannot be guaranteed, so the int32_t type
 // /// is used in the API calls to pass the enum values
-// typedef enum
-// {
-//     kodo_slide_binary,
-//     kodo_slide_binary4,
-//     kodo_slide_binary8
-// }
-// kodo_slide_finite_field;
+typedef enum
+{
+    kslide_binary,
+    kslide_binary4,
+    kslide_binary8,
+    kslide_binary16
+}
+kslide_finite_field;
 
 // //------------------------------------------------------------------
 // // ENCODER FACTORY API
@@ -70,6 +71,18 @@ kslide_encoder_factory_t* kslide_new_encoder_factory();
 /// @param factory The factory which should be deallocated
 KODO_SLIDE_API
 void kslide_delete_encoder_factory(kslide_encoder_factory_t* factory);
+
+/// @param factory The factory to query
+/// @return the finite field  to use.
+KODO_SLIDE_API
+int32_t kslide_encoder_factory_field(kslide_encoder_factory_t* factory);
+
+/// Set the finite field
+/// @param factory The factory which should be configured
+/// @param c_field The finite field to use.
+KODO_SLIDE_API
+void kslide_encoder_factory_set_field(kslide_encoder_factory_t* factory,
+                                      int32_t c_field);
 
 /// @param factory The factory to query
 /// @return the symbol size in bytes
@@ -109,6 +122,18 @@ kslide_decoder_factory_t* kslide_new_decoder_factory();
 /// @param factory The factory which should be deallocated
 KODO_SLIDE_API
 void kslide_delete_decoder_factory(kslide_decoder_factory_t* factory);
+
+/// @param factory The factory to query
+/// @return the finite field  to use.
+KODO_SLIDE_API
+int32_t kslide_decoder_factory_field(kslide_decoder_factory_t* factory);
+
+/// Set the finite field
+/// @param factory The factory which should be configured
+/// @param c_field The finite field to use.
+KODO_SLIDE_API
+void kslide_decoder_factory_set_field(kslide_decoder_factory_t* factory,
+                                      int32_t c_field);
 
 /// Return the symbol size in bytes
 /// @param factory The factory to query
@@ -202,7 +227,7 @@ uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder);
 /// @param encoder The encoder to query
 /// @return The size of a coefficient vector in bytes
 KODO_SLIDE_API
-uint32_t kslide_encoder_coefficients_vector_size(kslide_encoder_t* encoder);
+uint32_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder);
 
 /// Adds a symbol to the front of the encoder. Increments the stream front
 /// index.
