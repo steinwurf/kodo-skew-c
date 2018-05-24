@@ -6,6 +6,8 @@ of every change, see the Git log.
 
 Latest
 ------
+* Major: Correct spelling: ``kslide_encoder_coefficients_vector_size`` ->
+  ``kslide_encoder_coefficient_vector_size``.
 * Minor: Exposed API for changing field.
 * Major: Switch from using kodo-slide's detail stacks to using the wrappers.
 * Major: Upgrade to kodo-slide 2
