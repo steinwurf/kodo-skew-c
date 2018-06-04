@@ -123,6 +123,14 @@ kslide_encoder_t* kslide_encoder_factory_build(
     return new kslide_encoder_t(factory->m_impl.build());
 }
 
+void kslide_encoder_factory_initialize(
+    kslide_encoder_factory_t* factory, kslide_encoder_t* encoder)
+{
+    assert(factory != nullptr);
+    assert(encoder != nullptr);
+    factory->m_impl.initialize(encoder->m_impl);
+}
+
 void kslide_delete_encoder(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
@@ -175,9 +183,15 @@ kslide_decoder_t* kslide_decoder_factory_build(
     kslide_decoder_factory_t* factory)
 {
     assert(factory != nullptr);
-
-    assert(factory != nullptr);
     return new kslide_decoder_t(factory->m_impl.build());
+}
+
+void kslide_decoder_factory_initialize(
+    kslide_decoder_factory_t* factory, kslide_decoder_t* decoder)
+{
+    assert(factory != nullptr);
+    assert(decoder != nullptr);
+    factory->m_impl.initialize(decoder->m_impl);
 }
 
 void kslide_delete_decoder(kslide_decoder_t* decoder)
@@ -187,58 +201,9 @@ void kslide_delete_decoder(kslide_decoder_t* decoder)
 }
 
 //------------------------------------------------------------------
-// DECODER API
-//------------------------------------------------------------------
-uint32_t kslide_decoder_symbol_size(kslide_decoder_t* decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_impl.symbol_size();
-}
-
-uint32_t kslide_decoder_stream_symbols(kslide_decoder_t* decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_impl.stream_symbols();
-}
-
-uint64_t kslide_decoder_push_front_symbol(
-    kslide_decoder_t* decoder, uint8_t* data)
-{
-    assert(decoder != nullptr);
-    assert(data != nullptr);
-
-    return decoder->m_impl.push_front_symbol(data);
-}
-
-uint32_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_impl.symbols_decoded();
-}
-
-uint32_t kslide_decoder_stream_lower_bound(kslide_decoder_t* decoder)
-{
-    assert(decoder != nullptr);
-    return decoder->m_impl.stream_lower_bound();
-}
-
-void kslide_decoder_set_window(kslide_decoder_t* decoder,
-                               uint32_t lower_bound, uint32_t symbols)
-{
-    assert(decoder != nullptr);
-    decoder->m_impl.set_window(lower_bound, symbols);
-}
-
-void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol,
-                                uint8_t* coefficients)
-{
-    assert(decoder != nullptr);
-    decoder->m_impl.read_symbol(symbol, coefficients);
-}
-
-//------------------------------------------------------------------
 // ENCODER API
 //------------------------------------------------------------------
+
 uint32_t kslide_encoder_symbol_size(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
@@ -251,19 +216,53 @@ uint32_t kslide_encoder_stream_symbols(kslide_encoder_t* encoder)
     return encoder->m_impl.stream_symbols();
 }
 
-uint64_t kslide_encoder_push_front_symbol(
-    kslide_encoder_t* encoder, uint8_t* data)
-{
-    assert(encoder != nullptr);
-    assert(data != nullptr);
-
-    return encoder->m_impl.push_front_symbol(data);
-}
-
 uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder)
 {
     assert(encoder != nullptr);
     return encoder->m_impl.stream_lower_bound();
+}
+
+uint32_t kslide_encoder_stream_upper_bound(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.stream_upper_bound();
+}
+
+uint64_t kslide_encoder_push_front_symbol(kslide_encoder_t* encoder, uint8_t* data)
+{
+    assert(encoder != nullptr);
+    assert(data != nullptr);
+    return encoder->m_impl.push_front_symbol(data);
+}
+
+uint64_t kslide_encoder_pop_back_symbol(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.pop_back_symbol();
+}
+
+uint64_t kslide_encoder_window_symbols(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.window_symbols();
+}
+
+uint64_t kslide_encoder_window_lower_bound(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.window_lower_bound();
+}
+
+uint64_t kslide_encoder_window_upper_bound(kslide_encoder_t* encoder)
+{
+    assert(encoder != nullptr);
+    return encoder->m_impl.window_upper_bound();
+}
+
+void kslide_encoder_set_window(kslide_encoder_t* encoder, uint32_t lower_bound, uint32_t symbols)
+{
+    assert(encoder != nullptr);
+    encoder->m_impl.set_window(lower_bound, symbols);
 }
 
 uint32_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder)
@@ -272,29 +271,159 @@ uint32_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder)
     return encoder->m_impl.coefficient_vector_size();
 }
 
-void kslide_encoder_set_window(kslide_encoder_t* encoder,
-                               uint32_t lower_bound, uint32_t symbols)
+void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint32_t seed_value)
 {
     assert(encoder != nullptr);
-    encoder->m_impl.set_window(lower_bound, symbols);
+    encoder->m_impl.set_seed(seed_value);
 }
 
-void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint32_t seed)
+void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* coefficients)
 {
     assert(encoder != nullptr);
-    encoder->m_impl.set_seed(seed);
+    assert(coefficients != nullptr);
+    encoder->m_impl.generate(coefficients);
 }
 
-void kslide_encoder_generate(kslide_encoder_t* encoder, uint8_t* data)
+void kslide_encoder_write_symbol(kslide_encoder_t* encoder, uint8_t* symbol, const uint8_t* coefficients)
 {
     assert(encoder != nullptr);
-    assert(data != nullptr);
-
-    encoder->m_impl.generate(data);
-}
-
-void kslide_encoder_write_symbol(kslide_encoder_t* encoder, uint8_t* symbol,
-                                 const uint8_t* coefficients)
-{
+    assert(symbol != nullptr);
+    assert(coefficients != nullptr);
     encoder->m_impl.write_symbol(symbol, coefficients);
+}
+
+void kslide_encoder_write_source_symbol(kslide_encoder_t* encoder, uint8_t* symbol, uint64_t index)
+{
+    assert(encoder != nullptr);
+    assert(symbol != nullptr);
+    encoder->m_impl.write_source_symbol(symbol, index);
+}
+
+//------------------------------------------------------------------
+// DECODER API
+//------------------------------------------------------------------
+
+uint64_t kslide_decoder_symbol_size(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbol_size();
+}
+
+uint64_t kslide_decoder_stream_symbols(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.stream_symbols();
+}
+
+uint64_t kslide_decoder_stream_lower_bound(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.stream_lower_bound();
+}
+
+uint64_t kslide_decoder_stream_upper_bound(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.stream_upper_bound();
+}
+
+uint64_t kslide_decoder_push_front_symbol(kslide_decoder_t* decoder, uint8_t* symbol)
+{
+    assert(decoder != nullptr);
+    assert(symbol != nullptr);
+    return decoder->m_impl.push_front_symbol(symbol);
+}
+
+uint64_t kslide_decoder_pop_back_symbol(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.pop_back_symbol();
+}
+
+uint64_t kslide_decoder_window_symbols(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.window_symbols();
+}
+
+uint64_t kslide_decoder_window_lower_bound(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.window_lower_bound();
+}
+
+uint64_t kslide_decoder_window_upper_bound(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.window_upper_bound();
+}
+
+void kslide_decoder_set_window(kslide_decoder_t* decoder, uint64_t window_offset, uint64_t window_symbols)
+{
+    assert(decoder != nullptr);
+    decoder->m_impl.set_window(window_offset, window_symbols);
+}
+
+uint64_t kslide_decoder_coefficient_vector_size(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.coefficient_vector_size();
+}
+
+void kslide_decoder_set_seed(kslide_decoder_t* decoder, uint64_t seed_value)
+{
+    assert(decoder != nullptr);
+    decoder->m_impl.set_seed(seed_value);
+}
+
+void kslide_decoder_generate(kslide_decoder_t* decoder, uint8_t* coefficients)
+{
+    assert(decoder != nullptr);
+    assert(coefficients != nullptr);
+    decoder->m_impl.generate(coefficients);
+}
+
+void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol, uint8_t* coefficients)
+{
+    assert(decoder != nullptr);
+    assert(symbol != nullptr);
+    assert(coefficients != nullptr);
+    decoder->m_impl.read_symbol(symbol, coefficients);
+}
+
+void kslide_decoder_read_source_symbol(kslide_decoder_t* decoder, uint8_t* symbol, uint64_t index)
+{
+    assert(decoder != nullptr);
+    assert(symbol != nullptr);
+    decoder->m_impl.read_source_symbol(symbol, index);
+}
+
+uint64_t kslide_decoder_rank(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.rank();
+}
+
+uint64_t kslide_decoder_symbols_missing(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbols_missing();
+}
+
+uint64_t kslide_decoder_symbols_partially_decoded(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbols_partially_decoded();
+}
+
+uint64_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.symbols_decoded();
+}
+
+bool kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder, uint64_t index)
+{
+    assert(decoder != nullptr);
+    return decoder->m_impl.is_symbol_decoded(index);
 }
