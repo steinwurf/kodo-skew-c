@@ -535,15 +535,6 @@ void mix_coded_uncoded(kslide_finite_field field)
     auto encoder = kslide_encoder_factory_build(encoder_factory);
     auto decoder = kslide_decoder_factory_build(decoder_factory);
 
-    // encoder_factory.set_field(field);
-    // decoder_factory.set_field(field);
-
-    // encoder_factory.set_symbol_size(symbol_size);
-    // decoder_factory.set_symbol_size(symbol_size);
-
-    // auto encoder = encoder_factory.build();
-    // auto decoder = decoder_factory.build();
-
     // boost::random::mt19937 rng;
     // rng.seed(rand());
 
