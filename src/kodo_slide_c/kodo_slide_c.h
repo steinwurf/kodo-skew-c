@@ -355,7 +355,8 @@ uint64_t kslide_decoder_stream_upper_bound(kslide_decoder_t* decoder);
 ///        memory if needed. Once the symbol is popped from the stream.
 /// @return The stream index of the symbol being added.
 KODO_SLIDE_API
-uint64_t kslide_decoder_push_front_symbol(kslide_decoder_t* decoder, uint8_t* symbol);
+uint64_t kslide_decoder_push_front_symbol(kslide_decoder_t* decoder,
+                                          uint8_t* symbol);
 
 /// @param decoder The decoder to use
 /// Remove the "oldest" symbol from the stream. Increments the
@@ -395,7 +396,8 @@ uint64_t kslide_decoder_window_upper_bound(kslide_decoder_t* decoder);
 ///        window.
 /// @param window_symbols Sets number of symbols within the window.
 KODO_SLIDE_API
-void kslide_decoder_set_window(kslide_decoder_t* decoder, uint64_t window_offset, uint64_t window_symbols);
+void kslide_decoder_set_window(kslide_decoder_t* decoder,
+                               uint64_t window_offset, uint64_t window_symbols);
 
 /// @param decoder The decoder to query
 /// @return The size of the coefficient vector in the current window in
@@ -437,7 +439,8 @@ void kslide_decoder_generate(kslide_decoder_t* decoder, uint8_t* coefficients);
 /// @param coefficients The coding coefficients used to
 ///        create the encoded symbol
 KODO_SLIDE_API
-void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol, uint8_t* coefficients);
+void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol,
+                                uint8_t* coefficients);
 
 /// Add a source symbol at the decoder.
 ///
@@ -445,7 +448,8 @@ void kslide_decoder_read_symbol(kslide_decoder_t* decoder, uint8_t* symbol, uint
 /// @param symbol Buffer containing the source symbol's data.
 /// @param index The index of the source symbol in the stream
 KODO_SLIDE_API
-void kslide_decoder_read_source_symbol(kslide_decoder_t* decoder, uint8_t* symbol, uint64_t index);
+void kslide_decoder_read_source_symbol(kslide_decoder_t* decoder,
+                                       uint8_t* symbol, uint64_t index);
 
 /// The rank of a decoder indicates how many symbols have been
 /// partially or fully decoded. This number is also equivalent to the
@@ -477,7 +481,8 @@ uint64_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder);
 /// @return True if the symbol is decoded (i.e. it corresponds to a source
 ///         symbol), and otherwise false.
 KODO_SLIDE_API
-bool kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder, uint64_t index);
+bool kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder,
+                                      uint64_t index);
 
 #ifdef __cplusplus
 }
