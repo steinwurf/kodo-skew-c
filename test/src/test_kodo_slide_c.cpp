@@ -135,7 +135,7 @@ bool rate_controller_generate_data(rate_controller& controller)
 }
 
 
-TEST(test_kodo_slide_c, api)
+TEST(test_kodo_slide_c, basic_api)
 {
     uint32_t symbols = 100U;
     uint32_t symbol_size = 750U;
@@ -264,7 +264,7 @@ TEST(test_kodo_slide_c, slide_window)
     auto encoder = kslide_encoder_factory_build(encoder_factory);
     auto decoder = kslide_decoder_factory_build(decoder_factory);
 
-    // Allocate our finite memory for encoding and decoding
+    // Allocate our finite memory for decoding
     symbol_storage* decoder_storage = symbol_storage_alloc(capacity, symbol_size);
 
     uint32_t source_symbols_index = 0;
@@ -300,7 +300,7 @@ TEST(test_kodo_slide_c, slide_window)
             source_symbols_index++;
             assert(source_symbols_index < source_symbol_count);
 
-            std::generate_n(source_symbol, symbol_size, rand);
+            randomize_buffer(source_symbol, symbol_size);
 
             if (kslide_encoder_window_symbols(encoder) == window_symbols)
             {
@@ -320,7 +320,6 @@ TEST(test_kodo_slide_c, slide_window)
             kslide_encoder_stream_lower_bound(encoder),
             kslide_encoder_stream_symbols(encoder));
 
-        // Resize buffers
         uint8_t* coefficients =
             (uint8_t*)calloc(1, kslide_encoder_coefficient_vector_size(encoder));
 
@@ -521,7 +520,7 @@ void mix_coded_uncoded(kslide_finite_field field)
     uint32_t symbol_size = 160U;
 
     // Maximum number of interations
-    uint32_t max_iterations = 100000U;
+    uint32_t max_iterations = 1000U;
 
     kslide_decoder_factory_t* decoder_factory = kslide_new_decoder_factory();
     kslide_encoder_factory_t* encoder_factory = kslide_new_encoder_factory();
@@ -535,145 +534,154 @@ void mix_coded_uncoded(kslide_finite_field field)
     auto encoder = kslide_encoder_factory_build(encoder_factory);
     auto decoder = kslide_decoder_factory_build(decoder_factory);
 
-    // boost::random::mt19937 rng;
-    // rng.seed(rand());
+    // Cache for all original source symbols added to the encoder - such that
+    // we can check that they are decoded correctly.
+    uint32_t source_symbols_index = 0;
+    uint32_t source_symbol_count = max_iterations;
+    uint8_t** source_symbols = (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
 
-    // // encoder.set_trace_stdout();
-    // // encoder.set_zone_prefix("encoder");
-    // // decoder.set_trace_stdout();
-    // // decoder.set_zone_prefix("decoder");
+    // Allocate our finite memory for decoding
+    symbol_storage* decoder_storage = symbol_storage_alloc(capacity, symbol_size);
 
-    // // Cache for all original source symbols added to the encoder - such that
-    // // we can check that they are decoded correctly.
-    // std::vector<std::vector<uint8_t>> source_symbols;
+    // Provide the decoder with storage
+    for (uint32_t i = 0; i < capacity; ++i)
+    {
+        uint8_t* symbol = symbol_storage_symbol(decoder_storage, i);
+        kslide_decoder_push_front_symbol(decoder, symbol);
+    }
 
-    // // Allocate our finite memory for encoding and decoding
-    // symbol_storage decoder_storage(capacity, symbol_size);
-    // symbol_storage encoder_storage(window_symbols, symbol_size);
+    // Initialize our rate controller
+    rate_controller control = rate_controller_init(8, 3);
 
-    // // Provide the decoder with the storage
-    // for (uint32_t i = 0; i < capacity; ++i)
-    // {
-    //     uint8_t* symbol = decoder_storage.symbol(i);
-    //     decoder.push_front_symbol(symbol);
-    // }
+    // Make sure we will not hang on bugs that cause infinite loops
+    uint32_t iterations = 0;
 
-    // std::vector<uint8_t> coefficients;
-    // std::vector<uint8_t> symbol;
+    // Counter for keeping track of the number of decoded symbols
+    uint32_t decoded = 0;
 
-    // // Initialize our rate controller
-    // rate_controller control(8, 3);
+    while (decoded < 100U && iterations < max_iterations)
+    {
+        // Update loop state
+        ++iterations;
+        // Manage the encoder's window
+        if (rate_controller_generate_data(control))
+        {
+            // Create a new source symbol
+            uint8_t* source_symbol = (uint8_t*)malloc(symbol_size);
+            source_symbols[source_symbols_index] = source_symbol;
+            source_symbols_index++;
+            assert(source_symbols_index < source_symbol_count);
 
-    // // Make sure we will not hang on bugs that cause infinite loops
-    // uint32_t iterations = 0;
+            randomize_buffer(source_symbol, symbol_size);
 
-    // // Counter for keeping track of the number of decoded symbols
-    // uint32_t decoded = 0;
+            if (kslide_encoder_stream_symbols(encoder) == window_symbols)
+            {
+                // If window is full - pop a symbol before pushing a new one
+                kslide_encoder_pop_back_symbol(encoder);
+            }
 
-    // while (decoded < 100U && iterations < max_iterations)
-    // {
-    //     // Manage the encoder's window
-    //     if (control.generate_data())
-    //     {
-    //         // Create a new source symbol
-    //         source_symbols.emplace_back(symbol_size);
-    //         uint8_t* symbol = source_symbols.back().data();
-    //         std::generate_n(symbol, symbol_size, rand);
+            kslide_encoder_push_front_symbol(encoder, source_symbol);
+        }
 
-    //         if (encoder.stream_symbols() == window_symbols)
-    //         {
-    //             // If window is full - pop a symbol before pushing a new one
-    //             encoder.pop_back_symbol();
-    //         }
+        // Uncoded or coded
+        bool coded = rand() % 2;
+        uint64_t random_index = 0;
 
-    //         encoder.push_front_symbol(symbol);
-    //     }
+        // Choose a seed for this encoding
+        uint32_t seed = rand();
 
-    //     // Uncoded or coded
-    //     bool coded = rand() % 2;
-    //     uint64_t random_index = 0;
+        // Encode a symbol
+        kslide_encoder_set_window(
+            encoder,
+            kslide_encoder_stream_lower_bound(encoder),
+            kslide_encoder_stream_symbols(encoder));
 
-    //     // Choose a seed for this encoding
-    //     uint32_t seed = rand();
 
-    //     // Encode a symbol
-    //     encoder.set_window(encoder.stream_lower_bound(),
-    //                        encoder.stream_symbols());
+        uint8_t* coefficients =
+            (uint8_t*)calloc(1, kslide_encoder_coefficient_vector_size(encoder));
 
-    //     symbol.resize(encoder.symbol_size());
+        uint8_t* symbol = (uint8_t*)calloc(1, kslide_encoder_symbol_size(encoder));
 
-    //     if (coded)
-    //     {
+        if (coded)
+        {
+            kslide_encoder_set_seed(encoder, seed);
+            kslide_encoder_generate(encoder, coefficients);
+            kslide_encoder_write_symbol(encoder, symbol, coefficients);
+        }
+        else
+        {
+            // Warning: This approach is biased towards the lower end.
+            uint64_t max_index = kslide_encoder_window_upper_bound(encoder) - 1;
+            uint64_t min_index = kslide_encoder_window_lower_bound(encoder);
+            random_index = rand() % (max_index - min_index + 1 ) + min_index;
 
-    //         // Resize buffers
-    //         coefficients.resize(encoder.coefficient_vector_size());
+            kslide_encoder_write_source_symbol(encoder, symbol, random_index);
+        }
 
-    //         encoder.set_seed(seed);
-    //         encoder.generate(coefficients.data());
-    //         encoder.write_symbol(symbol.data(), coefficients.data());
-    //     }
-    //     else
-    //     {
-    //         boost::random::uniform_int_distribution<> rand_index(
-    //             encoder.window_lower_bound(), encoder.window_upper_bound() - 1);
+        rate_controller_advance(control);
 
-    //         random_index = rand_index(rng);
-    //         encoder.write_source_symbol(symbol.data(), random_index);
-    //     }
+        if (rand() % 2)
+        {
+            free(coefficients);
+            free(symbol);
+            // Simulate 50% packet loss
+            continue;
+        }
 
-    //     // Update loop state
-    //     ++iterations;
-    //     control.advance();
+        // Move the decoders's window / stream if needed
+        while (kslide_decoder_stream_upper_bound(decoder) < kslide_encoder_stream_upper_bound(encoder))
+        {
+            uint32_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
+            uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
 
-    //     if (rand() % 2)
-    //     {
-    //         // Simulate 50% packet loss
-    //         continue;
-    //     }
+            if (kslide_decoder_is_symbol_decoded(decoder, lower_bound))
+            {
+                ++decoded;
 
-    //     // Move the decoders's window / stream if needed
-    //     while (decoder.stream_upper_bound() < encoder.stream_upper_bound())
-    //     {
-    //         uint32_t lower_bound = decoder.stream_lower_bound();
-    //         uint8_t* symbol = decoder_storage.symbol(lower_bound);
+                // Compare with corresponding source symbol
+                uint8_t* source_symbol = source_symbols[lower_bound];
+                EXPECT_EQ(0, memcmp(decoder_symbol, source_symbol, symbol_size));
+            }
 
-    //         if (decoder.is_symbol_decoded(lower_bound))
-    //         {
-    //             ++decoded;
+            uint32_t pop_index = kslide_decoder_pop_back_symbol(decoder);
+            assert(pop_index == lower_bound);
 
-    //             // Compare with corresponding source symbol
-    //             uint8_t* source_symbol = source_symbols[lower_bound].data();
-    //             EXPECT_EQ(0, std::memcmp(symbol, source_symbol, symbol_size));
-    //         }
+            // Moves the decoder's upper bound
+            kslide_decoder_push_front_symbol(decoder, decoder_symbol);
+        }
 
-    //         uint32_t pop_index = decoder.pop_back_symbol();
-    //         assert(pop_index == lower_bound);
+        // Decode the symbol
+        kslide_decoder_set_window(
+            decoder,
+            kslide_encoder_window_lower_bound(encoder),
+            kslide_encoder_window_symbols(encoder));
 
-    //         // Moves the decoder's upper bound
-    //         decoder.push_front_symbol(symbol);
-    //     }
+        if (coded)
+        {
+            kslide_decoder_set_seed(decoder, seed);
+            kslide_decoder_generate(decoder, coefficients);
+            kslide_decoder_read_symbol(decoder, symbol, coefficients);
+        }
+        else
+        {
+            kslide_decoder_read_source_symbol(decoder, symbol, random_index);
+        }
 
-    //     // Decode the symbol
-    //     decoder.set_window(encoder.window_lower_bound(),
-    //                        encoder.window_symbols());
+        free(coefficients);
+        free(symbol);
+    }
+    SCOPED_TRACE(testing::Message() << "decoded = " << decoded);
 
-    //     if (coded)
-    //     {
-    //         decoder.set_seed(seed);
-    //         decoder.generate(coefficients.data());
-    //         decoder.read_symbol(symbol.data(), coefficients.data());
-    //     }
-    //     else
-    //     {
-    //         decoder.read_source_symbol(symbol.data(), random_index);
-    //     }
-    // }
+    EXPECT_LT(iterations, max_iterations);
+    EXPECT_GE(decoded, 100U);
 
-    // SCOPED_TRACE(testing::Message() << "decoded = " << decoded);
+    symbol_storage_free(decoder_storage);
 
-    // EXPECT_LT(iterations, max_iterations);
-    // EXPECT_GE(decoded, 100U);
-
+    for (uint32_t i = 0; i < max_iterations; i++)
+    {
+        free(source_symbols[i]);
+    }
+    free(source_symbols);
     kslide_delete_encoder(encoder);
     kslide_delete_encoder_factory(encoder_factory);
     kslide_delete_decoder(decoder);
