@@ -269,7 +269,8 @@ TEST(test_kodo_slide_c, slide_window)
 
     uint32_t source_symbols_index = 0;
     uint32_t source_symbol_count = max_iterations;
-    uint8_t** source_symbols = (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
+    uint8_t** source_symbols =
+        (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
 
     // Provide the decoder with storage
     for (uint32_t i = 0; i < capacity; ++i)
@@ -340,7 +341,8 @@ TEST(test_kodo_slide_c, slide_window)
         }
 
         // Move the decoders's window / stream if needed
-        while (kslide_decoder_stream_upper_bound(decoder) < kslide_encoder_stream_upper_bound(encoder))
+        while (kslide_decoder_stream_upper_bound(decoder) <
+               kslide_encoder_stream_upper_bound(encoder))
         {
             uint32_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
             uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
@@ -431,7 +433,8 @@ TEST(test_kodo_slide_c, encoder_api)
             symbol_size = kslide_encoder_symbol_size(encoder);
             symbol = (uint8_t*) malloc(symbol_size);
         }
-        kslide_encoder_write_source_symbol(encoder, symbol, kslide_encoder_window_lower_bound(encoder));
+        uint64_t index = kslide_encoder_window_lower_bound(encoder);
+        kslide_encoder_write_source_symbol(encoder, symbol, index);
         kslide_encoder_write_symbol(encoder, symbol, coefficients);
 
         kslide_encoder_pop_back_symbol(encoder);
@@ -471,13 +474,14 @@ TEST(test_kodo_slide_c, decoder_api)
             continue;
         }
 
-        kslide_decoder_set_window(decoder,
+        kslide_decoder_set_window(
+            decoder,
             kslide_decoder_stream_lower_bound(decoder),
             kslide_decoder_stream_symbols(decoder));
         EXPECT_GE(kslide_decoder_coefficient_vector_size(decoder), 1U);
 
-        uint8_t* coefficients =
-            (uint8_t*) malloc(kslide_decoder_coefficient_vector_size(decoder));
+        uint8_t* coefficients = (uint8_t*) malloc(
+            kslide_decoder_coefficient_vector_size(decoder));
 
         kslide_decoder_set_seed(decoder, rand());
         kslide_decoder_generate(decoder, coefficients);
@@ -538,7 +542,8 @@ void mix_coded_uncoded(kslide_finite_field field)
     // we can check that they are decoded correctly.
     uint32_t source_symbols_index = 0;
     uint32_t source_symbol_count = max_iterations;
-    uint8_t** source_symbols = (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
+    uint8_t** source_symbols =
+        (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
 
     // Allocate our finite memory for decoding
     symbol_storage* decoder_storage = symbol_storage_alloc(capacity, symbol_size);
@@ -613,7 +618,7 @@ void mix_coded_uncoded(kslide_finite_field field)
             // Warning: This approach is biased towards the lower end.
             uint64_t max_index = kslide_encoder_window_upper_bound(encoder) - 1;
             uint64_t min_index = kslide_encoder_window_lower_bound(encoder);
-            random_index = rand() % (max_index - min_index + 1 ) + min_index;
+            random_index = rand() % (max_index - min_index + 1) + min_index;
 
             kslide_encoder_write_source_symbol(encoder, symbol, random_index);
         }
@@ -629,7 +634,8 @@ void mix_coded_uncoded(kslide_finite_field field)
         }
 
         // Move the decoders's window / stream if needed
-        while (kslide_decoder_stream_upper_bound(decoder) < kslide_encoder_stream_upper_bound(encoder))
+        while (kslide_decoder_stream_upper_bound(decoder) <
+               kslide_encoder_stream_upper_bound(encoder))
         {
             uint32_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
             uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
