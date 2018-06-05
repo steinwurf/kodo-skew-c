@@ -197,8 +197,8 @@ TEST(test_kodo_slide_c, basic_api)
                                   kslide_encoder_stream_lower_bound(encoder),
                                   kslide_encoder_stream_symbols(encoder));
 
-        uint8_t* coefficients =
-            (uint8_t*) malloc(kslide_encoder_coefficient_vector_size(encoder));
+        uint8_t* coefficients = (uint8_t*) malloc(
+            kslide_encoder_coefficient_vector_size(encoder));
 
         uint8_t* symbol = (uint8_t*) malloc(
             kslide_encoder_symbol_size(encoder));
@@ -602,10 +602,9 @@ void mix_coded_uncoded(kslide_finite_field field)
             kslide_encoder_stream_symbols(encoder));
 
 
-        uint8_t* coefficients =
-            (uint8_t*)calloc(1, kslide_encoder_coefficient_vector_size(encoder));
-
-        uint8_t* symbol = (uint8_t*)calloc(1, kslide_encoder_symbol_size(encoder));
+        uint8_t* coefficients = (uint8_t*) malloc(
+            kslide_encoder_coefficient_vector_size(encoder));
+        uint8_t* symbol = (uint8_t*)malloc(kslide_encoder_symbol_size(encoder));
 
         if (coded)
         {
