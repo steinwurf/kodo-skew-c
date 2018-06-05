@@ -415,7 +415,8 @@ TEST(test_kodo_slide_c, encoder_api)
             kslide_encoder_stream_symbols(encoder));
 
         EXPECT_GE(kslide_encoder_coefficient_vector_size(encoder), 1U);
-        uint8_t* coefficients = (uint8_t*) malloc(kslide_encoder_coefficient_vector_size(encoder));
+        uint8_t* coefficients = (uint8_t*) malloc(
+            kslide_encoder_coefficient_vector_size(encoder));
 
         kslide_encoder_set_seed(encoder, rand());
         kslide_encoder_generate(encoder, coefficients);
