@@ -34,21 +34,21 @@
 extern "C" {
 #endif
 
-// //------------------------------------------------------------------
-// // kodo-slide-c TYPES
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// kodo-slide-c TYPES
+//------------------------------------------------------------------
 
-// /// Opaque pointer used for the encoder and decoder factories
+/// Opaque pointer used for the encoder and decoder factories
 typedef struct kslide_encoder_factory kslide_encoder_factory_t;
 typedef struct kslide_decoder_factory kslide_decoder_factory_t;
 
-// /// Opaque pointer used for decoders, encoders
+/// Opaque pointer used for decoders, encoders
 typedef struct kslide_encoder kslide_encoder_t;
 typedef struct kslide_decoder kslide_decoder_t;
 
-// /// Enum specifying the available finite fields
-// /// Note: the size of the enum type cannot be guaranteed, so the int32_t type
-// /// is used in the API calls to pass the enum values
+/// Enum specifying the available finite fields
+/// Note: the size of the enum type cannot be guaranteed, so the int32_t type
+/// is used in the API calls to pass the enum values
 typedef enum
 {
     kslide_binary,
@@ -58,9 +58,9 @@ typedef enum
 }
 kslide_finite_field;
 
-// //------------------------------------------------------------------
-// // ENCODER FACTORY API
-// //------------------------------------------------------------------
+//------------------------------------------------------------------
+// ENCODER FACTORY API
+//------------------------------------------------------------------
 
 /// Build a new encoder factory
 /// @return Pointer to the new encoder factory
@@ -75,13 +75,13 @@ void kslide_delete_encoder_factory(kslide_encoder_factory_t* factory);
 /// @param factory The factory to query
 /// @return The current specified symbol size in bytes.
 KODO_SLIDE_API
-uint32_t kslide_encoder_factory_symbol_size(kslide_encoder_factory_t* factory);
+uint64_t kslide_encoder_factory_symbol_size(kslide_encoder_factory_t* factory);
 
 /// @param factory The factory to configure
 /// @param symbol_size The symbol size in bytes.
 KODO_SLIDE_API
 void kslide_encoder_factory_set_symbol_size(kslide_encoder_factory_t* factory,
-                                            uint32_t symbol_size);
+                                            uint64_t symbol_size);
 
 /// @param factory The factory to query
 /// @return The finite field used.
@@ -95,7 +95,7 @@ void kslide_encoder_factory_set_field(kslide_encoder_factory_t* factory,
                                       int32_t c_field);
 
 /// @param factory The factory to use
-/// @return A new decoder.
+/// @return A new encoder.
 KODO_SLIDE_API
 kslide_encoder_t* kslide_encoder_factory_build(
     kslide_encoder_factory_t* factory);
@@ -130,13 +130,13 @@ void kslide_delete_decoder_factory(kslide_decoder_factory_t* factory);
 /// @param factory The factory to query
 /// @return The current specified symbol size in bytes.
 KODO_SLIDE_API
-uint32_t kslide_decoder_factory_symbol_size(kslide_decoder_factory_t* factory);
+uint64_t kslide_decoder_factory_symbol_size(kslide_decoder_factory_t* factory);
 
 /// @param factory The factory to configure
 /// @param symbol_size Sets the size of a symbol in bytes
 KODO_SLIDE_API
 void kslide_decoder_factory_set_symbol_size(kslide_decoder_factory_t* factory,
-                                            uint32_t symbol_size);
+                                            uint64_t symbol_size);
 
 /// @param factory The factory to query
 /// @return the finite field to use.
@@ -174,9 +174,9 @@ void kslide_delete_decoder(kslide_decoder_t* decoder);
 /// @param encoder The encoder to query
 /// @return The size of a symbol in the stream in bytes.
 KODO_SLIDE_API
-uint32_t kslide_encoder_symbol_size(kslide_encoder_t* encoder);
+uint64_t kslide_encoder_symbol_size(kslide_encoder_t* encoder);
 
-/// @param decoder The encoder to query
+/// @param encoder The encoder to query
 /// @return The total number of symbols available in memory at the encoder.
 ///         The number of symbols in the coding window MUST be less than
 ///         or equal to this number. The total range of valid symbol
@@ -188,14 +188,14 @@ uint32_t kslide_encoder_symbol_size(kslide_encoder_t* encoder);
 ///             }
 ///
 KODO_SLIDE_API
-uint32_t kslide_encoder_stream_symbols(kslide_encoder_t* encoder);
+uint64_t kslide_encoder_stream_symbols(kslide_encoder_t* encoder);
 
 /// @param encoder The encoder to query
 /// @return The index of the oldest symbol known by the encoder. This symbol
 ///         may not be inside the window but can be included in the window
 ///         if needed.
 KODO_SLIDE_API
-uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder);
+uint64_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder);
 
 /// @param encoder The encoder to query
 /// @return The upper bound of the stream. The range of valid symbol indices
@@ -204,7 +204,7 @@ uint32_t kslide_encoder_stream_lower_bound(kslide_encoder_t* encoder);
 ///         interval. Going from encoder::stream_lower_bound() to
 ///         encoder::stream_upper_bound() - 1.
 KODO_SLIDE_API
-uint32_t kslide_encoder_stream_upper_bound(kslide_encoder_t* encoder);
+uint64_t kslide_encoder_stream_upper_bound(kslide_encoder_t* encoder);
 
 /// Adds a new symbol to the front of the encoder. Increments the number of
 /// symbols in the stream and increases the upper bound of the stream.
@@ -253,12 +253,11 @@ uint64_t kslide_encoder_window_upper_bound(kslide_encoder_t* encoder);
 ///          symbol indices will be included 4,5,6
 ///
 /// @param encoder The encoder to configure
-/// @param window_lower_bound Sets the index of the oldest symbol in the
-///        window.
-/// @param window_symbols Sets number of symbols within the window.
+/// @param lower_bound Sets the index of the oldest symbol in the         window.
+/// @param symbols Sets number of symbols within the window.
 KODO_SLIDE_API
 void kslide_encoder_set_window(kslide_encoder_t* encoder,
-                               uint32_t lower_bound, uint32_t symbols);
+                               uint64_t lower_bound, uint64_t symbols);
 
 /// @param encoder The encoder to query
 /// @return The size of the coefficient vector in the current window in
@@ -269,7 +268,7 @@ void kslide_encoder_set_window(kslide_encoder_t* encoder,
 ///         Alternatively the built-in generator can be used. See
 ///         kslide_encoder_set_seed(...) and kslide_encoder_generate(...).
 KODO_SLIDE_API
-uint32_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder);
+uint64_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder);
 
 /// Seed the internal random generator function. If using the same seed
 /// on the encoder and decoder the exact same set of coefficients will
@@ -277,7 +276,7 @@ uint32_t kslide_encoder_coefficient_vector_size(kslide_encoder_t* encoder);
 /// @param encoder The encoder to configure
 /// @param seed_value A value for the seed.
 KODO_SLIDE_API
-void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint32_t seed_value);
+void kslide_encoder_set_seed(kslide_encoder_t* encoder, uint64_t seed_value);
 
 /// Generate coding coefficients for the symbols in the coding window
 /// according to the specified seed (see kslide_encoder_set_seed(...)).
@@ -392,12 +391,11 @@ uint64_t kslide_decoder_window_upper_bound(kslide_decoder_t* decoder);
 ///          symbol indices will be included 4,5,6
 ///
 /// @param decoder The decoder to configure
-/// @param window_lower_bound Sets the index of the oldest symbol in the
-///        window.
-/// @param window_symbols Sets number of symbols within the window.
+/// @param lower_bound Sets the index of the oldest symbol in the window.
+/// @param symbols Sets number of symbols within the window.
 KODO_SLIDE_API
 void kslide_decoder_set_window(kslide_decoder_t* decoder,
-                               uint64_t window_offset, uint64_t window_symbols);
+                               uint64_t lower_bound, uint64_t symbols);
 
 /// @param decoder The decoder to query
 /// @return The size of the coefficient vector in the current window in
@@ -478,11 +476,11 @@ uint64_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder);
 /// @param decoder The decoder to query
 /// @param index Index of the symbol to check.
 ///
-/// @return True if the symbol is decoded (i.e. it corresponds to a source
-///         symbol), and otherwise false.
+/// @return 1 if the symbol is decoded (i.e. it corresponds to a source
+///         symbol), and otherwise 0.
 KODO_SLIDE_API
-bool kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder,
-                                      uint64_t index);
+uint8_t kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder,
+                                         uint64_t index);
 
 #ifdef __cplusplus
 }

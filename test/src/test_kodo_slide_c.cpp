@@ -12,7 +12,7 @@
 
 TEST(test_kodo_slide_c, factory_api)
 {
-    uint32_t symbol_size = 1300;
+    uint64_t symbol_size = 1300;
     int32_t field = kslide_binary8;
     auto decoder_factory = kslide_new_decoder_factory();
     auto encoder_factory = kslide_new_encoder_factory();
@@ -31,7 +31,7 @@ TEST(test_kodo_slide_c, factory_api)
     EXPECT_EQ(symbol_size, kslide_encoder_factory_symbol_size(encoder_factory));
     EXPECT_EQ(symbol_size, kslide_decoder_factory_symbol_size(decoder_factory));
 
-    uint32_t new_symbol_size = 300;
+    uint64_t new_symbol_size = 300;
 
     kslide_encoder_factory_set_symbol_size(encoder_factory, new_symbol_size);
     EXPECT_EQ(new_symbol_size, kslide_encoder_factory_symbol_size(encoder_factory));
@@ -43,19 +43,19 @@ TEST(test_kodo_slide_c, factory_api)
     kslide_delete_encoder_factory(encoder_factory);
 }
 
-void randomize_buffer(uint8_t* data, uint32_t size)
+void randomize_buffer(uint8_t* data, uint64_t size)
 {
     assert(data != nullptr);
-    for (uint32_t i = 0; i < size; ++i)
+    for (uint64_t i = 0; i < size; ++i)
     {
         data[i] = rand();
     }
 }
 
-uint32_t accumulate_buffer(uint8_t* data, uint64_t size)
+uint64_t accumulate_buffer(uint8_t* data, uint64_t size)
 {
     uint32_t result = 0;
-    for (uint32_t i = 0; i < size; i++)
+    for (uint64_t i = 0; i < size; i++)
         result += data[i];
     return result;
 }
@@ -63,12 +63,12 @@ uint32_t accumulate_buffer(uint8_t* data, uint64_t size)
 
 typedef struct
 {
-    uint32_t m_symbol_size;
-    uint32_t m_capacity;
+    uint64_t m_symbol_size;
+    uint64_t m_capacity;
     uint8_t* m_data;
 }  symbol_storage;
 
-symbol_storage* symbol_storage_alloc(uint32_t capacity, uint32_t symbol_size)
+symbol_storage* symbol_storage_alloc(uint64_t capacity, uint64_t symbol_size)
 {
     assert(symbol_size > 0);
     assert(capacity > 0);
@@ -93,14 +93,14 @@ void symbol_storage_free(symbol_storage* storage)
 void symbol_storage_randomize(symbol_storage* storage)
 {
     assert(storage != nullptr);
-    uint32_t size = storage->m_symbol_size * storage->m_capacity;
+    uint64_t size = storage->m_symbol_size * storage->m_capacity;
     randomize_buffer(storage->m_data, size);
 }
 
-uint8_t* symbol_storage_symbol(symbol_storage* storage, uint32_t index)
+uint8_t* symbol_storage_symbol(symbol_storage* storage, uint64_t index)
 {
     assert(storage != nullptr);
-    uint32_t mapped_index = index % storage->m_capacity;
+    uint64_t mapped_index = index % storage->m_capacity;
     return storage->m_data + (storage->m_symbol_size * mapped_index);
 }
 
@@ -137,8 +137,8 @@ bool rate_controller_generate_data(rate_controller& controller)
 
 TEST(test_kodo_slide_c, basic_api)
 {
-    uint32_t symbols = 100U;
-    uint32_t symbol_size = 750U;
+    uint64_t symbols = 100U;
+    uint64_t symbol_size = 750U;
 
     kslide_decoder_factory_t* decoder_factory = kslide_new_decoder_factory();
     kslide_encoder_factory_t* encoder_factory = kslide_new_encoder_factory();
@@ -203,7 +203,7 @@ TEST(test_kodo_slide_c, basic_api)
         uint8_t* symbol = (uint8_t*) malloc(
             kslide_encoder_symbol_size(encoder));
 
-        uint32_t seed = rand();
+        uint64_t seed = rand();
 
         kslide_encoder_set_seed(encoder, seed);
         kslide_encoder_generate(encoder, coefficients);
@@ -243,14 +243,14 @@ TEST(test_kodo_slide_c, slide_window)
 
     // Set the capacity of the decoder (this is the number of encoded symbols
     // that are used in the decoding process).
-    uint32_t capacity = 10U;
+    uint64_t capacity = 10U;
 
     // Set the window size (this is the number of symbols included in an
     // encoded symbol).
-    uint32_t window_symbols = 5U;
+    uint64_t window_symbols = 5U;
 
     // The size of a symbol in bytes
-    uint32_t symbol_size = 160U;
+    uint64_t symbol_size = 160U;
 
     // Maximum number of interations
     uint32_t max_iterations = 1000U;
@@ -273,7 +273,7 @@ TEST(test_kodo_slide_c, slide_window)
         (uint8_t**)calloc(source_symbol_count, sizeof(uint8_t*));
 
     // Provide the decoder with storage
-    for (uint32_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0; i < capacity; ++i)
     {
         uint8_t* symbol = symbol_storage_symbol(decoder_storage, i);
         kslide_decoder_push_front_symbol(decoder, symbol);
@@ -313,7 +313,7 @@ TEST(test_kodo_slide_c, slide_window)
         }
 
         // Choose a seed for this encoding
-        uint32_t seed = rand();
+        uint64_t seed = rand();
 
         // Encode a symbol
         kslide_encoder_set_window(
@@ -344,7 +344,7 @@ TEST(test_kodo_slide_c, slide_window)
         while (kslide_decoder_stream_upper_bound(decoder) <
                kslide_encoder_stream_upper_bound(encoder))
         {
-            uint32_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
+            uint64_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
             uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
 
             if (kslide_decoder_is_symbol_decoded(decoder, lower_bound))
@@ -355,7 +355,7 @@ TEST(test_kodo_slide_c, slide_window)
                 EXPECT_EQ(0, memcmp(decoder_symbol, source_symbol, symbol_size));
             }
 
-            uint32_t pop_index = kslide_decoder_pop_back_symbol(decoder);
+            uint64_t pop_index = kslide_decoder_pop_back_symbol(decoder);
             assert(pop_index == lower_bound);
 
             // Moves the decoder's upper bound
@@ -380,7 +380,7 @@ TEST(test_kodo_slide_c, slide_window)
     EXPECT_LT(iterations, max_iterations);
     EXPECT_GE(decoded, 100U);
 
-    for (uint32_t i = 0; i < max_iterations; i++)
+    for (uint32_t i = 0; i < source_symbol_count; i++)
     {
         free(source_symbols[i]);
     }
@@ -396,7 +396,7 @@ TEST(test_kodo_slide_c, encoder_api)
 {
     srand(time(0));
 
-    uint32_t symbol_size = 200U;
+    uint64_t symbol_size = 200U;
 
     kslide_encoder_factory_t* factory = kslide_new_encoder_factory();
     kslide_encoder_factory_set_symbol_size(factory, symbol_size);
@@ -451,7 +451,7 @@ TEST(test_kodo_slide_c, decoder_api)
 {
     srand(time(0));
 
-    uint32_t symbol_size = 200U;
+    uint64_t symbol_size = 200U;
 
     kslide_decoder_factory_t* factory = kslide_new_decoder_factory();
     kslide_decoder_factory_set_symbol_size(factory, symbol_size);
@@ -515,14 +515,14 @@ void mix_coded_uncoded(kslide_finite_field field)
 
     // Set the capacity of the decoder (this is the number of encoded symbols
     // that are used in the decoding process).
-    uint32_t capacity = 15U;
+    uint64_t capacity = 15U;
 
     // Set the window size (this is the number of symbols included in an
     // encoded symbol).
-    uint32_t window_symbols = 5U;
+    uint64_t window_symbols = 5U;
 
     // The size of a symbol in bytes
-    uint32_t symbol_size = 160U;
+    uint64_t symbol_size = 160U;
 
     // Maximum number of interations
     uint32_t max_iterations = 1000U;
@@ -594,7 +594,7 @@ void mix_coded_uncoded(kslide_finite_field field)
         uint64_t random_index = 0;
 
         // Choose a seed for this encoding
-        uint32_t seed = rand();
+        uint64_t seed = rand();
 
         // Encode a symbol
         kslide_encoder_set_window(
@@ -637,7 +637,7 @@ void mix_coded_uncoded(kslide_finite_field field)
         while (kslide_decoder_stream_upper_bound(decoder) <
                kslide_encoder_stream_upper_bound(encoder))
         {
-            uint32_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
+            uint64_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
             uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
 
             if (kslide_decoder_is_symbol_decoded(decoder, lower_bound))
@@ -649,7 +649,7 @@ void mix_coded_uncoded(kslide_finite_field field)
                 EXPECT_EQ(0, memcmp(decoder_symbol, source_symbol, symbol_size));
             }
 
-            uint32_t pop_index = kslide_decoder_pop_back_symbol(decoder);
+            uint64_t pop_index = kslide_decoder_pop_back_symbol(decoder);
             assert(pop_index == lower_bound);
 
             // Moves the decoder's upper bound
@@ -683,7 +683,7 @@ void mix_coded_uncoded(kslide_finite_field field)
 
     symbol_storage_free(decoder_storage);
 
-    for (uint32_t i = 0; i < max_iterations; i++)
+    for (uint32_t i = 0; i < source_symbol_count; i++)
     {
         free(source_symbols[i]);
     }
