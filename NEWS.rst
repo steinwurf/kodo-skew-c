@@ -6,7 +6,8 @@ of every change, see the Git log.
 
 Latest
 ------
-* tbd
+* Major: Change API to use ``uint64_t`` instead of ``uint32_t``.
+* Major: Extend and align API with kodo-slide.
 
 2.0.0
 -----
