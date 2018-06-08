@@ -345,7 +345,8 @@ TEST(test_kodo_slide_c, slide_window)
                kslide_encoder_stream_upper_bound(encoder))
         {
             uint64_t lower_bound = kslide_decoder_stream_lower_bound(decoder);
-            uint8_t* decoder_symbol = symbol_storage_symbol(decoder_storage, lower_bound);
+            uint8_t* decoder_symbol =
+                symbol_storage_symbol(decoder_storage, lower_bound);
 
             if (kslide_decoder_is_symbol_decoded(decoder, lower_bound))
             {

@@ -430,7 +430,8 @@ uint64_t kslide_decoder_symbols_decoded(kslide_decoder_t* decoder)
     return decoder->m_impl.symbols_decoded();
 }
 
-uint8_t kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder, uint64_t index)
+uint8_t kslide_decoder_is_symbol_decoded(kslide_decoder_t* decoder,
+                                         uint64_t index)
 {
     assert(decoder != nullptr);
     return decoder->m_impl.is_symbol_decoded(index);
