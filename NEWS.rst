@@ -8,6 +8,10 @@ Latest
 ------
 * tbd
 
+4.0.0
+-----
+* Major: Upgrade to kodo-slide 3
+
 3.0.0
 -----
 * Major: Change API to use ``uint64_t`` instead of ``uint32_t``.
